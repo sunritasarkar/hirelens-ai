@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File
 import pdfplumber
 import os
 from fastapi.middleware.cors import CORSMiddleware
+from app.utils.text_cleaner import clean_resume_text
+from app.utils.section_parser import extract_sections
 
 app = FastAPI()
 
@@ -37,8 +39,11 @@ async def upload_resume(file: UploadFile = File(...)):
             text = page.extract_text()
             if text:
                 extracted_text += text + "\n"
-
+    
+    cleaned_text = clean_resume_text(extracted_text)
+    sections = extract_sections(cleaned_text)
     return {
-        "filename": file.filename,
-        "extracted_text": extracted_text
-    }
+    "filename": file.filename,
+    "extracted_text": cleaned_text,
+    "sections": sections
+}

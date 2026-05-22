@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [response, setResponse] = useState("");
+  const [sections, setSections] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async () => {
@@ -24,6 +25,7 @@ export default function Home() {
       const data = await res.json();
 
       setResponse(data.extracted_text);
+      setSections(data.sections);
     } catch (error) {
       console.error(error);
       setResponse("Upload failed");
@@ -53,15 +55,44 @@ export default function Home() {
       >
         {loading ? "Uploading..." : "Upload Resume"}
       </button>
-
       {response && (
-        <div className="mt-10 max-w-4xl bg-gray-900 p-6 rounded-lg overflow-auto max-h-[400px]">
-          <h2 className="text-2xl font-bold mb-4">Extracted Resume Text</h2>
-          <pre className="whitespace-pre-wrap text-sm">
-            {response}
-          </pre>
+  <>
+    <div className="mt-10 max-w-4xl bg-gray-900 p-6 rounded-lg overflow-auto max-h-[400px]">
+      <h2 className="text-2xl font-bold mb-4">
+        Extracted Resume Text
+      </h2>
+
+      <pre className="whitespace-pre-wrap text-sm">
+        {response}
+      </pre>
+    </div>
+
+    {Object.keys(sections).length > 0 && (
+      <div className="mt-10 max-w-5xl w-full">
+        <h2 className="text-3xl font-bold mb-6 text-center">
+          Parsed Resume Sections
+        </h2>
+
+        <div className="grid gap-6">
+          {Object.entries(sections).map(([section, content]) => (
+            <div
+              key={section}
+              className="bg-gray-900 p-6 rounded-xl border border-gray-700"
+            >
+              <h3 className="text-2xl font-semibold mb-4 text-green-400">
+                {section}
+              </h3>
+
+              <pre className="whitespace-pre-wrap text-sm text-gray-300">
+                {content}
+              </pre>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
+    )}
+  </>
+)}
     </main>
   );
 }
